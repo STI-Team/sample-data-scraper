@@ -1,3 +1,6 @@
+# This param can sufficiently affect a number of tables scrapped from the source
+max_of_pages = 1000
+
 def get_subcategories(category_title) -> []:
     import requests
 
@@ -27,7 +30,7 @@ def get_pages(category_title) -> []:
     params = {
         "action": "query",
         "cmtitle": category_title,
-        "cmlimit": "1000",
+        "cmlimit": max_of_pages,
         "list": "categorymembers",
         "format": "json"
     }

@@ -1,3 +1,7 @@
+# This param can sufficiently affect a number of tables scrapped from the source
+max_of_articles = 100
+
+
 def search_articles(query) -> []:
     import requests
     from bs4 import BeautifulSoup as bs
@@ -7,7 +11,7 @@ def search_articles(query) -> []:
 
     params = {
         "db": "pmc",
-        "retmax": "20",
+        "retmax": max_of_articles,
         "term": query
     }
 
