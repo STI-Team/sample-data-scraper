@@ -69,6 +69,7 @@ def save_tables(directory_for_tables, root_category):
     :param root_category: название корневой категории
     :return:
     """
+    import json
     import pathlib
 
     tables = get_tables(root_category)
@@ -79,7 +80,9 @@ def save_tables(directory_for_tables, root_category):
             file_name = "root_category_" + str(index) + ".json"
             path = directory_for_tables + file_name
             if not pathlib.Path(path).exists():
-                pathlib.Path(path).write_text(table.json(), encoding="utf-8")
+                parsed = json.loads(table.json())
+                json_string = json.dumps(parsed, indent=4, ensure_ascii=False).encode("utf8")
+                pathlib.Path(path).write_text(json_string.decode(), encoding="utf-8")
                 print("New table is saved to " + file_name)
             else:
                 print(file_name + " exists.")
@@ -95,7 +98,9 @@ def save_tables(directory_for_tables, root_category):
                 file_name = subcategory_title[1] + " " + str(index) + ".json"
                 path = directory_for_tables + file_name
                 if not pathlib.Path(path).exists():
-                    pathlib.Path(path).write_text(table.json(), encoding="utf-8")
+                    parsed = json.loads(table.json())
+                    json_string = json.dumps(parsed, indent=4, ensure_ascii=False).encode("utf8")
+                    pathlib.Path(path).write_text(json_string.decode(), encoding="utf-8")
                     print("New table is saved to " + file_name)
                 else:
                     print(file_name + " exists.")
