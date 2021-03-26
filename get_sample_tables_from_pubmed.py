@@ -97,30 +97,49 @@ def convert_table_from_html_to_json(table):
     print("get table here")
 
 
-pcmids = search_articles("cancer")
-# pcmids = ['156895']
-print(pcmids)
+def save_tables(directory_for_tables, topic):
+    """
+    Сохранение извлекаемых таблиц в каталог
+    :param directory_for_tables: каталог для сохранения таблиц
+    :param topic: название темы для поиска статей
+    :return:
+    """
+    import json
+    import pathlib
+    from bs4 import BeautifulSoup as bs
 
-from bs4 import BeautifulSoup as bs
-import json
+    pcmids = search_articles(topic)
+    print(pcmids)
 
-try:
-    for pcmid in pcmids:
-        text = get_article(pcmid)
+    try:
+        for pcmid in pcmids:
+            text = get_article(pcmid)
+            text = text.encode("latin-1")
+            bs_content = bs(text, "lxml")
+            table_nodes = bs_content.findAll("table")
+            if len(table_nodes) > 0:
+                print(len(table_nodes), "tables detected in", pcmid)
+                index = 0
+                for table_node in table_nodes:
+                    df = parse_html_table(table_node)
+                    if df is not None:
+                        index += 1
+                        # print(df)
+                        result = df.to_json(orient="records", force_ascii=False)
+                        parsed = json.loads(result)
+                        json_string = json.dumps(parsed, indent=4, ensure_ascii=False).encode("utf8")
+                        # print(json_string.decode())
+                        file_name = pcmid + "_" + str(index) + ".json"
+                        path = directory_for_tables + file_name
+                        if not pathlib.Path(path).exists():
+                            pathlib.Path(path).write_text(json_string.decode(), encoding="utf-8")
+                            print("New table is saved to " + file_name)
+                        else:
+                            print(file_name + " exists.")
+                    else:
+                        print("Table from " + pcmid + " is empty.")
+    except:
+        pass
 
-        text = text.encode('latin-1')
-        bs_content = bs(text, "lxml")
 
-        table_nodes = bs_content.findAll("table")
-        if len(table_nodes) > 0:
-            print(len(table_nodes), "tables detected in", pcmid)
-            for table_node in table_nodes:
-                df = parse_html_table(table_node)
-                if df is not None:
-                    print(df)
-                    result = df.to_json(orient="records", force_ascii=False)
-                    parsed = json.loads(result)
-                    json_string = json.dumps(parsed, indent=4, ensure_ascii=False).encode('utf8')
-                    print(json_string.decode())
-except:
-    pass
+save_tables("C:/Users/79501/datasets/pubmed/", "cancer")
